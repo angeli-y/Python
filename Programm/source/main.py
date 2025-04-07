@@ -1,5 +1,5 @@
 """
-Minesweeper lite
+Verlassene Raumstation
 
 Dieses Modul implementiert das Konsolenspiel, in dem Spieler Felder aufdecken, 
 ohne auf Fallen zu treten. Die Anzahl der benachbarten Fallen wird angezeigt.
@@ -46,18 +46,20 @@ def count_remaining_traps(board: list[list[int]], revealed: list[list[bool]]) ->
     count = 0
     for i in range(len(board)):
         for j in range(len(board[i])):
-            if board[i][j] == -1:  # Ist das eine Falle?
+            if board[i][j] == -1:
                 if revealed[i][j]:
                     print(f"⚠ FEHLER: Falle an ({i},{j}) wurde aufgedeckt!")
                 else:
-                    count += 1  # Nur nicht aufgedeckte Fallen zählen!
+                    count += 1
     return count
-
 
 def reveal_board(board: list[list[int]], revealed: list[list[bool]], x: int, y: int) -> None:
     """
-    Deckt auf
+    Deckt ein Feld auf, falls gültig.
     """
+    if not (0 <= x < len(board) and 0 <= y < len(board[0])):
+        return
+
     if revealed[x][y]:
         return
 
@@ -67,7 +69,7 @@ def reveal_board(board: list[list[int]], revealed: list[list[bool]], x: int, y: 
     if board[x][y] > 0:
         return
 
-    # Nur Nachbarfelder mit `0` rekursiv aufdecken!
+    # Nur Nachbarfelder mit `0` rekursiv aufdecken
     for i in range(x - 1, x + 2):
         for j in range(y - 1, y + 2):
             if (0 <= i < len(board) and 0 <= j < len(board[0])
@@ -75,11 +77,9 @@ def reveal_board(board: list[list[int]], revealed: list[list[bool]], x: int, y: 
                 print(f"--> Versuche Nachbarfeld ({i},{j}) aufzudecken")
                 reveal_board(board, revealed, i, j)
 
-
-
 def display_board(board: list[list[int]], revealed: list[list[bool]]) -> None:
     """
-    Erstellt ein Spielfeld
+    Gibt das Spielfeld auf der Konsole aus.
     """
     print(f"Verbleibende Fallen: {count_remaining_traps(board, revealed)}")
     for i, row in enumerate(board):
@@ -90,12 +90,17 @@ def display_board(board: list[list[int]], revealed: list[list[bool]]) -> None:
                 print('-', end=' ')
         print()
 
-if __name__ == "__main__":
+def run_game() -> None:
+    """
+    Startet Verlassene Raumstation.
+    Spieler decken Felder auf und versuchen, Fallen zu vermeiden.
+    Das Spiel endet bei einem Treffer oder wenn alle sicheren Felder aufgedeckt sind.
+    """
     spielfeld = create_board(BOARD_SIZE, NUM_TRAPS)
     revealed = [[False for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)]
-    GAME_OVER = False
+    game_over = False
 
-    while not GAME_OVER:
+    while not game_over:
         display_board(spielfeld, revealed)
 
         try:
@@ -112,19 +117,21 @@ if __name__ == "__main__":
 
             if spielfeld[x][y] == -1:
                 print("Du hast eine Falle aktiviert! Spiel vorbei.")
-                GAME_OVER = True
+                game_over = True
             else:
                 reveal_board(spielfeld, revealed, x, y)
                 if check_win(spielfeld, revealed):
-                    print(
-                        "Herzlichen Glückwunsch! "
-                        "Du hast alle sicheren Felder aufgedeckt und gewonnen!"
-                    )
-                    GAME_OVER = True
+                    print("Herzlichen Glückwunsch! "
+                          "Du hast alle sicheren Felder aufgedeckt und gewonnen!")
+                    game_over = True
         except ValueError:
             print("Ungültige Eingabe. Bitte gib Zahlen ein.")
         except KeyboardInterrupt:
             print("\nSpiel beendet.")
-            GAME_OVER = True
+            game_over = True
 
     display_board(spielfeld, [[True] * BOARD_SIZE for _ in range(BOARD_SIZE)])
+
+
+if __name__ == "__main__":
+    run_game()

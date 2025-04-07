@@ -1,2 +1,2 @@
 [MESSAGES CONTROL]
-disable=consider-using-enumerate,redefined-outer-name
+disable=consider-using-enumerate,redefined-outer-name,unused-variable,unused-argument
